@@ -1,11 +1,16 @@
 package com.termin.ator.controllers;
 
+import java.lang.classfile.ClassFile.Option;
 import java.time.Duration;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +41,32 @@ public class LeistungController {
         Leistung lstg = new Leistung();
         lstg.setName(dto.name());
         lstg.setDuration(dto.duration());
+        return leistungModel.save(lstg);
+    }
+
+    public record EditLeistungDto(Integer id, Optional<String> name, Optional<Integer> duration) {
+    }
+
+    @PatchMapping("/{id}")
+    public @ResponseBody Leistung updateLeistung(
+            @PathVariable Long id,
+            @RequestBody EditLeistungDto dto) {
+
+        System.out.println("Meow" + " name: " + dto.name().get());
+        Optional<Leistung> opt = leistungModel.findById(dto.id);
+        if (opt.isEmpty()) {
+            throw new RuntimeException("Leistung with name " + dto.name + " not found");
+        }
+
+        Leistung lstg = opt.get();
+        if (dto.name.isPresent()) {
+            lstg.setName(dto.name.get());
+        }
+
+        if (dto.duration.isPresent()) {
+            lstg.setDuration(dto.duration.get());
+        }
+
         return leistungModel.save(lstg);
     }
 }
