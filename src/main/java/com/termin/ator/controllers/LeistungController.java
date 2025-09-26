@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,7 +53,7 @@ public class LeistungController {
             @PathVariable Long id,
             @RequestBody EditLeistungDto dto) {
 
-        System.out.println("Meow" + " name: " + dto.name().get());
+        System.out.println("Meow" + " duration: " + dto.duration().get());
         Optional<Leistung> opt = leistungModel.findById(dto.id);
         if (opt.isEmpty()) {
             throw new RuntimeException("Leistung with name " + dto.name + " not found");
@@ -68,5 +69,20 @@ public class LeistungController {
         }
 
         return leistungModel.save(lstg);
+    }
+
+    public record DeleteLeistungDto(Integer id) {
+    }
+
+    @DeleteMapping("/{id}")
+    public @ResponseBody Optional<Leistung> deleteLeistung(@PathVariable Integer id) {
+        Optional<Leistung> opt = leistungModel.findById(id);
+        if (opt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Leistung lstg = opt.get();
+        leistungModel.delete(lstg);
+        return Optional.of(lstg);
     }
 }
